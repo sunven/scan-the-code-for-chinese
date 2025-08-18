@@ -129,6 +129,8 @@ fn scan_directory(path: String, exclude: String) -> Result<Vec<ScanResult>, Stri
             _ => continue,
         };
 
+        let relative_path = file_path.strip_prefix(path).unwrap_or(file_path);
+
         let source_text = match fs::read_to_string(file_path) {
             Ok(text) => text,
             Err(_) => continue, // Skip files we can't read
@@ -145,7 +147,7 @@ fn scan_directory(path: String, exclude: String) -> Result<Vec<ScanResult>, Stri
 
         let mut visitor = ChineseVisitor {
             results: Arc::clone(&results),
-            file_path: file_path.to_path_buf(),
+            file_path: relative_path.to_path_buf(),
             source_text: &source_text,
             chinese_regex: chinese_regex.clone(),
         };
