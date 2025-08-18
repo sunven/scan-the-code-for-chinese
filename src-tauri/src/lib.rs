@@ -1,6 +1,6 @@
 use ignore::WalkBuilder;
 use oxc::allocator::Allocator;
-use oxc::ast::ast::{StringLiteral, TemplateLiteral};
+use oxc::ast::ast::{JSXText, StringLiteral, TemplateLiteral};
 use oxc::ast::Visit;
 use oxc::parser::Parser;
 use oxc::span::SourceType;
@@ -42,8 +42,10 @@ struct ChineseVisitor<'a> {
 
 impl<'a> Visit<'a> for ChineseVisitor<'a> {
     fn visit_string_literal(&mut self, lit: &StringLiteral<'a>) {
-        if self.chinese_regex.is_match(&lit.value) {
-            let (line, column) = get_line_col(self.source_text, lit.span.start);
+        if let Some(mat) = self.chinese_regex.find(&lit.value) {
+            // +1 to account for the opening quote "
+            let absolute_offset = lit.span.start + 1 + mat.start() as u32;
+            let (line, column) = get_line_col(self.source_text, absolute_offset);
             self.results.lock().unwrap().push(ScanResult {
                 file_path: self.file_path.to_string_lossy().to_string(),
                 line,
@@ -56,8 +58,9 @@ impl<'a> Visit<'a> for ChineseVisitor<'a> {
     fn visit_template_literal(&mut self, lit: &TemplateLiteral<'a>) {
         for part in &lit.quasis {
             if let Some(cooked) = &part.value.cooked {
-                if self.chinese_regex.is_match(cooked) {
-                    let (line, column) = get_line_col(self.source_text, part.span.start);
+                if let Some(mat) = self.chinese_regex.find(cooked) {
+                    let absolute_offset = part.span.start + mat.start() as u32;
+                    let (line, column) = get_line_col(self.source_text, absolute_offset);
                     self.results.lock().unwrap().push(ScanResult {
                         file_path: self.file_path.to_string_lossy().to_string(),
                         line,
@@ -65,6 +68,23 @@ impl<'a> Visit<'a> for ChineseVisitor<'a> {
                         text: cooked.to_string(),
                     });
                 }
+            }
+        }
+    }
+
+    fn visit_jsx_text(&mut self, text: &JSXText<'a>) {
+        if let Some(mat) = self.chinese_regex.find(&text.value) {
+            let absolute_offset = text.span.start + mat.start() as u32;
+            let (line, column) = get_line_col(self.source_text, absolute_offset);
+            let trimmed_value = text.value.trim();
+
+            if !trimmed_value.is_empty() {
+                self.results.lock().unwrap().push(ScanResult {
+                    file_path: self.file_path.to_string_lossy().to_string(),
+                    line,
+                    column,
+                    text: trimmed_value.to_string(),
+                });
             }
         }
     }
