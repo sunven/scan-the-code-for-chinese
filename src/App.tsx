@@ -85,7 +85,7 @@ function App() {
       })
       setResults(res)
       // Automatically expand all files by default after scan
-      expandAll()
+      // expandAll()
     } catch (err: any) {
       setError(`An error occurred during scan: ${err.toString()}`)
     } finally {
@@ -142,9 +142,9 @@ function App() {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
-                      逗号分隔的文件或目录列表，用于排除扫描。
+                      1. 默认忽略.gitignore
                       <br />
-                      例如: node_modules,dist
+                      2. glob 格式，逗号（,）分割
                     </p>
                   </TooltipContent>
                 </Tooltip>

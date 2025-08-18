@@ -1,4 +1,4 @@
-use ignore::WalkBuilder;
+use ignore::{overrides::OverrideBuilder, WalkBuilder};
 use oxc::allocator::Allocator;
 use oxc::ast::ast::{JSXText, StringLiteral, TemplateLiteral};
 use oxc::ast::Visit;
@@ -102,14 +102,24 @@ fn scan_directory(path: String, exclude: String) -> Result<Vec<ScanResult>, Stri
     let mut walk_builder = WalkBuilder::new(path);
     walk_builder.hidden(false); // Respect .gitignore but not other hidden files by default
 
+    let mut override_builder = OverrideBuilder::new(path);
+
     // Add exclude patterns
-    for pattern in exclude.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()) {
-        walk_builder.add_ignore(format!("!{}", pattern));
+    for pattern in exclude
+        .split(',')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
+        override_builder
+            .add(format!("!{}", pattern).as_str())
+            .map_err(|e| e.to_string())?; // ! 表示忽略
     }
 
-    let chinese_regex = Regex::new(r"[\u4e00-\u9fa5]").map_err(|e| e.to_string())?;
+    let overrides = override_builder.build().map_err(|e| e.to_string())?;
 
-    for result in walk_builder.build() {
+    let chinese_regex = Regex::new(r"\p{Han}").map_err(|e| e.to_string())?;
+
+    for result in walk_builder.overrides(overrides).build() {
         let entry = match result {
             Ok(entry) => entry,
             Err(_) => continue,
@@ -124,8 +134,13 @@ fn scan_directory(path: String, exclude: String) -> Result<Vec<ScanResult>, Stri
         let source_type = match extension {
             Some("js") => SourceType::from_path(file_path).unwrap().with_script(true),
             Some("jsx") => SourceType::from_path(file_path).unwrap().with_jsx(true),
-            Some("ts") => SourceType::from_path(file_path).unwrap().with_typescript(true),
-            Some("tsx") => SourceType::from_path(file_path).unwrap().with_typescript(true).with_jsx(true),
+            Some("ts") => SourceType::from_path(file_path)
+                .unwrap()
+                .with_typescript(true),
+            Some("tsx") => SourceType::from_path(file_path)
+                .unwrap()
+                .with_typescript(true)
+                .with_jsx(true),
             _ => continue,
         };
 
@@ -158,7 +173,6 @@ fn scan_directory(path: String, exclude: String) -> Result<Vec<ScanResult>, Stri
     let final_results = results.lock().unwrap().clone();
     Ok(final_results)
 }
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
