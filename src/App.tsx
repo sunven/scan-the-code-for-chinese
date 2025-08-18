@@ -97,8 +97,10 @@ function App() {
     <div className="min-h-screen flex flex-col items-center p-4">
       <div className="w-full max-w-4xl space-y-8">
         <header className="text-center">
-          <h4 className="text-2xl font-bold text-primary mb-2">代码中文扫描工具</h4>
-          <p className="text-muted-foreground">使用 Tauri, React, Oxc 构建的高性能代码扫描工具</p>
+          <h4 className="text-2xl font-bold text-primary mb-2">Scan the code for Chinese</h4>
+          <p className="text-muted-foreground">
+            A high-performance code scanning tool built with Tauri, React, and Oxc.
+          </p>
         </header>
 
         <Card>
