@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { open } from '@tauri-apps/plugin-dialog'
 import { invoke } from '@tauri-apps/api/core'
-import { FolderOpen, Play, ChevronRight, Expand, Minimize, FileText, Info } from 'lucide-react'
+import { FolderOpen, Play, ChevronRight, Expand, Minimize, FileText, Info, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -97,17 +97,20 @@ function App() {
     <div className="min-h-screen flex flex-col items-center p-4">
       <div className="w-full max-w-4xl space-y-8">
         <header className="text-center">
-          <h4 className="text-2xl font-bold text-primary mb-2">Scan the code for Chinese</h4>
-          <p className="text-muted-foreground">
+          <h4 className="text-2xl font-bold text-primary">Scan the code for Chinese</h4>
+          {/* <p className="text-muted-foreground">
             A high-performance code scanning tool built with Tauri, React, and Oxc.
-          </p>
+          </p> */}
         </header>
 
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>扫描配置</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings2 />
+                  扫描配置
+                </CardTitle>
                 <CardDescription>选择要扫描的代码目录和排除规则</CardDescription>
               </div>
               <Button onClick={startScan} disabled={isLoading}>
@@ -118,8 +121,16 @@ function App() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex gap-2 items-center">
-              <Label className="w-20" htmlFor="scanPath">
+              <Label className="w-20 flex items-center gap-2" htmlFor="scanPath">
                 代码目录
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="w-4 h-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>只匹配这些文件：/\*.[jt]s(x)?/</p>
+                  </TooltipContent>
+                </Tooltip>
               </Label>
               <div className="flex-1 flex items-center gap-2">
                 <Input
