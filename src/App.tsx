@@ -97,7 +97,7 @@ function App() {
     <div className="min-h-screen flex flex-col items-center p-4">
       <div className="w-full max-w-4xl space-y-8">
         <header className="text-center">
-          <h4 className="text-2xl font-bold text-primary">Scan the code for Chinese</h4>
+          <h4 className="text-2xl font-bold text-primary">Scan the Chinese in the code</h4>
           {/* <p className="text-muted-foreground">
             A high-performance code scanning tool built with Tauri, React, and Oxc.
           </p> */}

@@ -2,9 +2,9 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "chinese-scanner",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "scan-the-chinese-in-the-code",
   "build": {
-    "frontendDist": "../build",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:11420",
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build"
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "chinese-scanner",
+        "title": "Scan the Chinese in the code",
         "width": 800,
         "height": 600,
         "resizable": true,
